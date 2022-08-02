@@ -22,7 +22,7 @@ class App extends EventEmitter {
 
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
-    // this.initializeErrorHandling();
+    this.initializeErrorHandling();
   }
 
   /**

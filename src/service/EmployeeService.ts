@@ -1,7 +1,14 @@
 import { plainToClass } from "class-transformer";
 import { Employee } from "../app/entities/Employee";
+import EntityNotFoundException from "../app/exception/EntityNotFoundException";
 import HttpException from "../app/exception/HttpException";
+import { ErrorCodes } from "../app/util/errorCode";
 import { EmployeeRepository } from "../reppository/employeeRepo";
+import jsonwebtoken from "jsonwebtoken";
+
+import bcrypt from "bcrypt";
+import UserNotAuthorizedException from "../app/exception/UserNotAuthorizedException";
+import IncorrectUsernameOrPasswordException from "../app/exception/IncorrectUsernameOrPasswordException";
 
 export class EmployeeService{
 
@@ -13,7 +20,10 @@ export class EmployeeService{
         return this.employeeRepo.getAllEmployees();
     }
     async getEmployeeId(id:string){
-        return await this.employeeRepo.getEmployeeId(id);
+        const employee = await this.employeeRepo.getEmployeeId(id);
+        if(!employee){
+            throw new EntityNotFoundException(ErrorCodes.EMPLOYEE_WITH_ID_NOT_FOUND)
+        }
     }
     public async createEmployee(employeeDetails: any) {
         try {
@@ -24,7 +34,8 @@ export class EmployeeService{
                 joiningDate: employeeDetails.joiningDate,
                 // username: employeeDetails.username,
                 // age: employeeDetails.age,
-                departmentId: employeeDetails.departmentId
+                departmentId: employeeDetails.departmentId,
+                password: employeeDetails.password ? await bcrypt.hash(employeeDetails.password, 10): '',
                 // isActive: true,
             });
             const save = await this.employeeRepo.saveEmployeeDetails(newEmployee);
@@ -40,6 +51,38 @@ export class EmployeeService{
 
         return await this.employeeRepo.updateEmployeeById(id,employeeDetails);
     }
+    public employeeLogin = async (
+        name: string,
+        password: string
+      ) => {
+        const employeeDetails = await this.employeeRepo.getEmployeeByUsername(
+          name
+        );
+        if (!employeeDetails) {
+          throw new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED);
+        }
+        const validPassword = await bcrypt.compare(password, employeeDetails.password);
+        if (validPassword) {
+          let payload = {
+            "custom:id": employeeDetails.id,
+            "custom:name": employeeDetails.name,
+          };
+          const token = this.generateAuthTokens(payload);
+
+          return {
+            idToken: token,
+            employeeDetails,
+          };
+        } else {
+          throw new IncorrectUsernameOrPasswordException(ErrorCodes.INCORRECT_USERNAME_OR_PASSWORD);
+        }
+      };
+
+     private generateAuthTokens = (payload: any) => {
+        return jsonwebtoken.sign(payload, process.env.JWT_TOKEN_SECRET, {
+          expiresIn: process.env.ID_TOKEN_VALIDITY,
+        });
+      };
     
    
     }

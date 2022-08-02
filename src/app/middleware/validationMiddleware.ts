@@ -21,22 +21,25 @@ function validationMiddleware<T>(type: any, parameter: string, skipMissingProper
     
             requestBody = plainToClass(type, req.params);
     console.log(requestBody);
+    }
     
     validate(
       requestBody, { skipMissingProperties, forbidUnknownValues: true, whitelist: true })
       .then((errors: ValidationError[]) => {
         if (errors.length > 0) {
           const errorDetail = ErrorCodes.VALIDATION_ERROR;
-          next(errors);
-        } else {
-            req[parameter] = requestBody;
-          next();
+          next(new HttpException(400, errorDetail.MESSAGE, errorDetail.CODE, errors));
+          // next(errors);
+        } else if(parameter === "body"){
+        
+            req.body = requestBody;
+            next(); }
+        else if(parameter === "params"){
+        
+                req.params = requestBody ;
+                next();
         }
-      });
-
-
-    }
-   
+      }); 
     
   };
 }

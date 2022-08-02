@@ -24,5 +24,8 @@ import { Department } from "./Department";
         @Column({ nullable: false })
         public status: string;
 
+        @Column({ nullable: true })
+        public password: string;
+
         
 }

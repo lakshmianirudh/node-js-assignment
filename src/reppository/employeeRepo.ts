@@ -26,5 +26,12 @@ export class EmployeeRepository{
         });
         return updateEmployeeDetails;
     }
+    public async getEmployeeByUsername(username: string) {
+        const employeeRepo = getConnection().getRepository(Employee);
+        const employeeDetail = await employeeRepo.findOne({
+            where: { name : username},
+        });
+        return employeeDetail;
+    }
     
     }
