@@ -13,7 +13,15 @@ import { ErrorCodes } from "../util/errorCode";
  */
 function validationMiddleware<T>(type: any, parameter: string, skipMissingProperties = false): express.RequestHandler {
   return (req, res, next) => {
-    const requestBody = plainToClass(type, req.body);
+    let requestBody: any;
+    if(parameter === "body"){
+        
+        requestBody = plainToClass(type, req.body); }
+    else if(parameter === "params"){
+    
+            requestBody = plainToClass(type, req.params);
+    console.log(requestBody);
+    
     validate(
       requestBody, { skipMissingProperties, forbidUnknownValues: true, whitelist: true })
       .then((errors: ValidationError[]) => {
@@ -21,10 +29,15 @@ function validationMiddleware<T>(type: any, parameter: string, skipMissingProper
           const errorDetail = ErrorCodes.VALIDATION_ERROR;
           next(errors);
         } else {
-            req.body = requestBody;
+            req[parameter] = requestBody;
           next();
         }
       });
+
+
+    }
+   
+    
   };
 }
 export default validationMiddleware;
