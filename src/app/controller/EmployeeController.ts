@@ -2,11 +2,13 @@ import { AbstractController } from "../util/rest/controller";
 import { NextFunction, Response } from "express";
 import RequestWithUser from "../util/rest/request";
 import APP_CONSTANTS from "../constants";
-import { EmployeeService } from "../../service/EmployeeService";
+import { EmployeeService } from "../service/EmployeeService";
 import  validationMiddleware  from "../middleware/validationMiddleware";
 import { CreateEmployeeDto } from "../dto/createEmployeeDto";
 import { PDto } from "../dto/pdto";
 import authorize from "../middleware/authorize";
+import { UpdateEmployeeDto } from "../dto/updateEmployeeDto";
+import { Employee } from "../entities/Employee";
 
 class EmployeeController extends AbstractController {
   constructor(private employeeService: EmployeeService) {
@@ -14,22 +16,22 @@ class EmployeeController extends AbstractController {
     this.initializeRoutes();
   }
   protected initializeRoutes() {
-    this.router.get(`${this.path}`, authorize(['admin','superadmin']),this.eResponse);
+    this.router.get(`${this.path}`, authorize(APP_CONSTANTS.permittedroles),this.getEmployee);
     this.router.post(
         `${this.path}`,
         validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
-        authorize(['admin']),
+        authorize(APP_CONSTANTS.permittedroles),
         // this.asyncRouteHandler(this.createEmployee)
         this.createEmployee
       );
-      this.router.get(`${this.path}/:id`,authorize(['admin']),validationMiddleware(PDto, APP_CONSTANTS.params),this.getEmployeeId);
+      this.router.get(`${this.path}/:id`,authorize(APP_CONSTANTS.permittedroles),validationMiddleware(PDto, APP_CONSTANTS.params),this.getEmployeeId);
       this.router.delete(`${this.path}/:id`,
-      authorize(['admin']),
+      authorize(APP_CONSTANTS.permittedroles),
       validationMiddleware(PDto, APP_CONSTANTS.params),this.deleteEmployeeById);
       this.router.put(`${this.path}/:id`,
-      authorize(['admin']),
+      authorize(APP_CONSTANTS.permittedroles),
       validationMiddleware(PDto, APP_CONSTANTS.params),
-      validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),this.updateEmployeeById);
+      validationMiddleware(UpdateEmployeeDto, APP_CONSTANTS.body),this.updateEmployeeById);
       this.router.post(
         `${this.path}/login`,
         this.login
@@ -52,9 +54,9 @@ class EmployeeController extends AbstractController {
   }
   
   
-  private eResponse = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+  private getEmployee = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      const data: any = await this.employeeService.getAllEmployees();
+      const data: Employee[] = await this.employeeService.getAllEmployees();
       response.status(200);
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1));
     } catch (error) {

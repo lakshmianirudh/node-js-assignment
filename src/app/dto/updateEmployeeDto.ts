@@ -7,9 +7,11 @@ export class UpdateEmployeeDto {
     @IsOptional()
     @IsString()
     public name?: string;
+
     @IsOptional()
     @IsString()
     public status?: string;
+    
     @IsOptional()
     @IsString()
     public joiningDate?: string;

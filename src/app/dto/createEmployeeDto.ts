@@ -7,6 +7,9 @@ import { CreateEmployeeAddressDto } from "./CreateEmployeeAddressDto";
 export class CreateEmployeeDto {
     @IsString()
     public name: string;
+    
+    @IsString()
+    public username: string;
 
     @IsString()
     public role: string;
