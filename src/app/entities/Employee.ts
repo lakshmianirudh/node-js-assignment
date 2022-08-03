@@ -35,8 +35,7 @@ import { EmployeeAddress } from "./EmployeeAddress";
         @JoinColumn()
         public employeeaddress: EmployeeAddress;
     
-        // @Column({ nullable: false })
-        // public employeeaddressId: string;
+        
 
         
 }

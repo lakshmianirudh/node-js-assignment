@@ -7,6 +7,6 @@ export class UpdateEmployeeAddressDto {
 
     @IsOptional()
     @IsString()
-    public district:string;
-    
+    public district: string;
+
 }

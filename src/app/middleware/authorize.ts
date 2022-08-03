@@ -5,7 +5,6 @@ import jsonwebtoken from "jsonwebtoken";
 import APP_CONSTANTS from "../constants";
 import { ErrorCodes } from "../util/errorCode";
 
-
 const authorize = (permittedRoles?: string[]) => {
   return async (
     req: RequestWithUser,
@@ -17,7 +16,7 @@ const authorize = (permittedRoles?: string[]) => {
       jsonwebtoken.verify(token, process.env.JWT_TOKEN_SECRET);
       const data = jsonwebtoken.decode(token);
       const det = JSON.parse(JSON.stringify(data));
-      if(!(permittedRoles.includes(det.role))){
+      if (!permittedRoles.includes(det.role)) {
         throw new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED);
       }
       return next();

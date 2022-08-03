@@ -16,17 +16,21 @@ export class UpdateEmployeeDto {
     @IsOptional()
     @IsString()
     public joiningDate?: string;
+
     @IsOptional()
     @IsString()
     public role?: string;
+
     @IsOptional()
     @IsString()
     public departmentId: string;
+
     @IsOptional()
     @IsString()
     public password: string;
+    
     @IsOptional()
     @ValidateNested({ each: true })
-  @Type(() => UpdateEmployeeAddressDto)
+    @Type(() => UpdateEmployeeAddressDto)
     employeeaddress: EmployeeAddress;
 }

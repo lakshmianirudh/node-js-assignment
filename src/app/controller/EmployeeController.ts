@@ -3,7 +3,7 @@ import { NextFunction, Response } from "express";
 import RequestWithUser from "../util/rest/request";
 import APP_CONSTANTS from "../constants";
 import { EmployeeService } from "../service/EmployeeService";
-import  validationMiddleware  from "../middleware/validationMiddleware";
+import validationMiddleware from "../middleware/validationMiddleware";
 import { CreateEmployeeDto } from "../dto/createEmployeeDto";
 import { PDto } from "../dto/pdto";
 import authorize from "../middleware/authorize";
@@ -16,27 +16,37 @@ class EmployeeController extends AbstractController {
     this.initializeRoutes();
   }
   protected initializeRoutes() {
-    this.router.get(`${this.path}`, authorize(APP_CONSTANTS.permittedroles),this.getEmployee);
-    this.router.post(
-        `${this.path}`,
-        validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
-        authorize(APP_CONSTANTS.permittedroles),
-        // this.asyncRouteHandler(this.createEmployee)
-        this.createEmployee
-      );
-      this.router.get(`${this.path}/:id`,authorize(APP_CONSTANTS.permittedroles),validationMiddleware(PDto, APP_CONSTANTS.params),this.getEmployeeId);
-      this.router.delete(`${this.path}/:id`,
+    this.router.get(
+      `${this.path}`,
       authorize(APP_CONSTANTS.permittedroles),
-      validationMiddleware(PDto, APP_CONSTANTS.params),this.deleteEmployeeById);
-      this.router.put(`${this.path}/:id`,
+      this.getEmployee
+    );
+    this.router.post(
+      `${this.path}`,
+      validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
+      authorize(APP_CONSTANTS.permittedroles),
+      this.createEmployee
+    );
+    this.router.get(
+      `${this.path}/:id`,
       authorize(APP_CONSTANTS.permittedroles),
       validationMiddleware(PDto, APP_CONSTANTS.params),
-      validationMiddleware(UpdateEmployeeDto, APP_CONSTANTS.body),this.updateEmployeeById);
-      this.router.post(
-        `${this.path}/login`,
-        this.login
-      );
-    
+      this.getEmployeeId
+    );
+    this.router.delete(
+      `${this.path}/:id`,
+      authorize(APP_CONSTANTS.permittedroles),
+      validationMiddleware(PDto, APP_CONSTANTS.params),
+      this.deleteEmployeeById
+    );
+    this.router.put(
+      `${this.path}/:id`,
+      authorize(APP_CONSTANTS.permittedroles),
+      validationMiddleware(PDto, APP_CONSTANTS.params),
+      validationMiddleware(UpdateEmployeeDto, APP_CONSTANTS.body),
+      this.updateEmployeeById
+    );
+    this.router.post(`${this.path}/login`, this.login);
   }
   private createEmployee = async (
     request: RequestWithUser,
@@ -51,18 +61,23 @@ class EmployeeController extends AbstractController {
     } catch (err) {
       next(err);
     }
-  }
-  
-  
-  private getEmployee = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+  };
+
+  private getEmployee = async (
+    request: RequestWithUser,
+    response: Response,
+    next: NextFunction
+  ) => {
     try {
       const data: Employee[] = await this.employeeService.getAllEmployees();
       response.status(200);
-      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1));
+      response.send(
+        this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1)
+      );
     } catch (error) {
       return next(error);
     }
-  }
+  };
   private getEmployeeId = async (
     request: RequestWithUser,
     response: Response,
@@ -77,7 +92,7 @@ class EmployeeController extends AbstractController {
     } catch (err) {
       next(err);
     }
-  }
+  };
   private deleteEmployeeById = async (
     request: RequestWithUser,
     response: Response,
@@ -92,7 +107,7 @@ class EmployeeController extends AbstractController {
     } catch (err) {
       next(err);
     }
-  }
+  };
   private updateEmployeeById = async (
     request: RequestWithUser,
     response: Response,
@@ -100,37 +115,39 @@ class EmployeeController extends AbstractController {
   ) => {
     try {
       const id = request.params.id;
-      const data = await this.employeeService.updateEmployeeById(id,request.body);
+      const data = await this.employeeService.updateEmployeeById(
+        id,
+        request.body
+      );
       response.send(
         this.fmt.formatResponse(data, Date.now() - request.startTime, "OK")
       );
     } catch (err) {
       next(err);
     }
-  }
+  };
   private login = async (
     request: RequestWithUser,
     response: Response,
     next: NextFunction
   ) => {
-    try{
+    try {
       const loginData = request.body;
-    const loginDetail = await this.employeeService.employeeLogin(
-      loginData.name.toLowerCase(),
-      loginData.password
-    );
-    response.send(
-      this.fmt.formatResponse(loginDetail, Date.now() - request.startTime, "OK")
-    );
-
-    }catch(err){
+      const loginDetail = await this.employeeService.employeeLogin(
+        loginData.name.toLowerCase(),
+        loginData.password
+      );
+      response.send(
+        this.fmt.formatResponse(
+          loginDetail,
+          Date.now() - request.startTime,
+          "OK"
+        )
+      );
+    } catch (err) {
       next(err);
-
     }
-    
   };
-  
 }
-
 
 export default EmployeeController;

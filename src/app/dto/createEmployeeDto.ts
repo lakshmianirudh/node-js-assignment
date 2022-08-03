@@ -5,30 +5,30 @@ import { EmployeeAddress } from "../entities/EmployeeAddress";
 import { CreateEmployeeAddressDto } from "./CreateEmployeeAddressDto";
 
 export class CreateEmployeeDto {
-    @IsString()
-    public name: string;
-    
-    @IsString()
-    public username: string;
+  @IsString()
+  public name: string;
 
-    @IsString()
-    public role: string;
+  @IsString()
+  public username: string;
 
-    @IsString()
-    public status: string;
+  @IsString()
+  public role: string;
 
-    @IsString()
-    public joiningDate: string;
+  @IsString()
+  public status: string;
 
-    @IsString()
-    public password: string;
+  @IsString()
+  public joiningDate: string;
 
-    @IsString()
-    public departmentId: string;
+  @IsString()
+  public password: string;
 
-    @ValidateNested({ each: true })
+  @IsString()
+  public departmentId: string;
+
+  @ValidateNested({ each: true })
   @Type(() => CreateEmployeeAddressDto)
-    employeeaddress: EmployeeAddress;
+  employeeaddress: EmployeeAddress;
 
-    
+
 }
