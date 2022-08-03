@@ -9,6 +9,9 @@ import jsonwebtoken from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import UserNotAuthorizedException from "../app/exception/UserNotAuthorizedException";
 import IncorrectUsernameOrPasswordException from "../app/exception/IncorrectUsernameOrPasswordException";
+import { EmployeeAddress } from "../app/entities/EmployeeAddress";
+import { CreateEmployeeAddressDto } from "../app/dto/CreateEmployeeAddressDto";
+import { CreateEmployeeDto } from "../app/dto/createEmployeeDto";
 
 export class EmployeeService{
 
@@ -24,18 +27,26 @@ export class EmployeeService{
         if(!employee){
             throw new EntityNotFoundException(ErrorCodes.EMPLOYEE_WITH_ID_NOT_FOUND)
         }
+        return employee;
     }
     public async createEmployee(employeeDetails: any) {
         try {
+          const newAddress = plainToClass(EmployeeAddress, {
+            state: employeeDetails.employeeaddress.state,
+            district:employeeDetails.employeeaddress.district
+             });
             const newEmployee = plainToClass(Employee, {
                 name: employeeDetails.name,
                 role: employeeDetails.role,
                 status: employeeDetails.status,
                 joiningDate: employeeDetails.joiningDate,
-                // username: employeeDetails.username,
-                // age: employeeDetails.age,
+                
                 departmentId: employeeDetails.departmentId,
+                username:employeeDetails.username,
+
                 password: employeeDetails.password ? await bcrypt.hash(employeeDetails.password, 10): '',
+                employeeaddress: newAddress
+                // employeeaddressId: employeeDetails.employeeaddressId
                 // isActive: true,
             });
             const save = await this.employeeRepo.saveEmployeeDetails(newEmployee);
@@ -49,7 +60,14 @@ export class EmployeeService{
     }
     async updateEmployeeById(id:string,employeeDetails: any){
 
-        return await this.employeeRepo.updateEmployeeById(id,employeeDetails);
+      const employee: Employee = await this.getEmployeeId(id);
+
+      const employeeAddress: EmployeeAddress = employee.employeeaddress;
+
+      employee.name = employeeDetails.name ? employeeDetails.name : employee.name;
+      employeeAddress.state = employeeDetails.employeeaddress.state ?  employeeDetails.employeeaddress.state: employeeAddress.state;
+
+      return await this.employeeRepo.updateEmployeeById(id,employee);
     }
     public employeeLogin = async (
         name: string,
@@ -66,6 +84,7 @@ export class EmployeeService{
           let payload = {
             "custom:id": employeeDetails.id,
             "custom:name": employeeDetails.name,
+            "role": employeeDetails.role
           };
           const token = this.generateAuthTokens(payload);
 
@@ -83,6 +102,6 @@ export class EmployeeService{
           expiresIn: process.env.ID_TOKEN_VALIDITY,
         });
       };
-    
+     
    
     }

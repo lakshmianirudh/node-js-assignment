@@ -14,16 +14,22 @@ class EmployeeController extends AbstractController {
     this.initializeRoutes();
   }
   protected initializeRoutes() {
-    this.router.get(`${this.path}`, authorize(),this.eResponse);
+    this.router.get(`${this.path}`, authorize(['admin','superadmin']),this.eResponse);
     this.router.post(
         `${this.path}`,
         validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
+        authorize(['admin']),
         // this.asyncRouteHandler(this.createEmployee)
         this.createEmployee
       );
-      this.router.get(`${this.path}/:id`,validationMiddleware(PDto, APP_CONSTANTS.params),this.getEmployeeId);
-      this.router.delete(`${this.path}/:id`,this.deleteEmployeeById);
-      this.router.put(`${this.path}/:id`,this.updateEmployeeById);
+      this.router.get(`${this.path}/:id`,authorize(['admin']),validationMiddleware(PDto, APP_CONSTANTS.params),this.getEmployeeId);
+      this.router.delete(`${this.path}/:id`,
+      authorize(['admin']),
+      validationMiddleware(PDto, APP_CONSTANTS.params),this.deleteEmployeeById);
+      this.router.put(`${this.path}/:id`,
+      authorize(['admin']),
+      validationMiddleware(PDto, APP_CONSTANTS.params),
+      validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),this.updateEmployeeById);
       this.router.post(
         `${this.path}/login`,
         this.login
@@ -44,6 +50,7 @@ class EmployeeController extends AbstractController {
       next(err);
     }
   }
+  
   
   private eResponse = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {

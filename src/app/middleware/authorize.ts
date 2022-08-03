@@ -17,6 +17,9 @@ const authorize = (permittedRoles?: string[]) => {
       jsonwebtoken.verify(token, process.env.JWT_TOKEN_SECRET);
       const data = jsonwebtoken.decode(token);
       const det = JSON.parse(JSON.stringify(data));
+      if(!(permittedRoles.includes(det.role))){
+        throw new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED);
+      }
       return next();
     } catch (error) {
       return next(new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED));
