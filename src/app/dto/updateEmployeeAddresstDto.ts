@@ -1,11 +1,11 @@
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
-export class CreateEmployeeAddressDto {
-    
+export class UpdateEmployeeAddressDto {
+    @IsOptional()
     @IsString()
     public state: string;
 
-    
+    @IsOptional()
     @IsString()
     public district:string;
     

@@ -2,6 +2,7 @@ import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { EmployeeAddress } from "../entities/EmployeeAddress";
 import { CreateEmployeeAddressDto } from "./CreateEmployeeAddressDto";
+import { UpdateEmployeeAddressDto } from "./updateEmployeeAddresstDto";
 
 export class UpdateEmployeeDto {
     @IsOptional()
@@ -11,7 +12,7 @@ export class UpdateEmployeeDto {
     @IsOptional()
     @IsString()
     public status?: string;
-    
+
     @IsOptional()
     @IsString()
     public joiningDate?: string;
@@ -26,6 +27,6 @@ export class UpdateEmployeeDto {
     public password: string;
     @IsOptional()
     @ValidateNested({ each: true })
-  @Type(() => CreateEmployeeAddressDto)
+  @Type(() => UpdateEmployeeAddressDto)
     employeeaddress: EmployeeAddress;
 }
