@@ -45,6 +45,9 @@ export class EmployeeService {
   async updateEmployeeById(id: string, employeeDetails: UpdateEmployeeDto) {
     const employee: Employee = await this.getEmployeeId(id);
     if (employee) {
+      employeeDetails.password = employeeDetails.password
+        ? await bcrypt.hash(employeeDetails.password, 10)
+        : "";
       employeeDetails.employeeaddress.id = employee.employeeaddress.id;
       return await this.employeeRepo.updateEmployeeById(id, employeeDetails);
     }
